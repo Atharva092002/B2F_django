@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Your Cart</title>
+	  <meta charset="utf-8">
+	  <meta name="viewport" content="width=device-width, initial-scale=1">
+	  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+	  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+	  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	  <link href="https://fonts.googleapis.com/css?family=Abril+Fatface|Dancing+Script" rel="stylesheet">
+      
+	<style>
+  .hero-text h1
+  {
+    position: absolute;
+    top: 200px;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    font-family: 'Times New Roman', Times, serif;
+    color:white;
+    font-size: 30px;
+  }
+
+.card-body-img-fluid
+{
+	object-fit: cover;
+}
+
+.picbig{
+	position: absolute;
+	width:0px;
+	-webkit-transition:width 0.3s linear 0s;
+	transition:width 0.3s linear 0s;
+	z-index:10;
+}
+.img-fluid:hover + .picbig{
+	width:450px;
+}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="/" style="font-family:'Times New Roman';color:white;">Store</a>
+      </li>
+	</ul>
+	<ul class="nav navbar-nav navbar-right">
+      <li class="dropdown" style="font-family:'Times New Roman';color:white;"><a class="btn dropdown-toggle" data-toggle="dropdown">Profile<span class="caret"></span></a>
+      <ul class="dropdown-menu">
+        <li style="font-family:'Times New Roman';color:white;"><a href="#">Action1</a></li>
+        <li style="font-family:'Times New Roman';color:white;"><a href="#">Action2</a></li>
+        <li><a href="#"></a></li>
+      </ul>
+      {% if request.session.customer_id != None%}
+      <li class="nav-item">
+        <a class="nav-link" href="/cart" style="font-family:'Times New Roman';color:white;">Cart  <span class="badge badge-info">{{request.session.cart.keys|length}}</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/orders" style="font-family:'Times New Roman';color:white;">Orders</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/logout" style="font-family:'Times New Roman';color:white;">Logout</a>
+      </li>
+      {% else %}
+      <li class="nav-item">
+        <a class="nav-link" href="/cart" style="font-family:'Times New Roman';color:white;">Cart</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/signup" style="font-family:'Times New Roman';color:white;">Sign up</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/login" style="font-family:'Times New Roman';color:white;">Login</a>
+    </li>
+    {% endif %}
+  </div>
+</nav>
+{% load cart %}
+{% load custom_filter %}
+<div class="container">
+    <div class="border rounded p-4 m-4">
+         <p class="display-4 pl-4 ml-4">Your Cart</p>
+         <hr>
+         <table class="table">
+             <thead>
+                 <tr>
+                     <th>Sno.</th>
+                     <th>Image</th>
+                     <th>Product</th>
+                     <th>Price</th>
+                     <th>Quantity</th>
+                     <th>Total</th>
+                 </tr>
+             </thead>
+             <tbody>
+                 {% for product in products %}
+                 <tr>
+                     <td>{{forloop.counter}}</td>
+                     <td><img style="height: 80px;" class="rounded-circle" src="{{product.image.url}}" alt=""></td>
+                     <td>{{product.name}}</td>
+                     <td>{{product.price|currency}}</td>
+                     <td>{{product|cart_count:request.session.cart}}</td>
+                     <td>{{product|price_total:request.session.cart|currency}}</td>
+                 </tr>
+                 {% endfor %}
+             </tbody>
+             <tfoot>
+                 <tr>
+                     <th colspan="4"></th>
+                     <th class="" colspan="">Total</th>
+                     <th>{{products|total_cart_price:request.session.cart|currency}}</th>
+                 </tr>
+             </tfoot>
+         </table>
+         <hr>
+         <div class="m-3 p-3">
+             <a href="#" data-toggle="modal" data-target="#exampleModal" class="btn btn-outline-info border rounded  col-lg-3 float-right">Check out</a>
+         </div>
+    </div>
+ </div>
+ 
+   <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+     <div class="modal-dialog" role="document">
+       <div class="modal-content">
+         <div class="modal-header">
+           <h5 class="modal-title" id="exampleModalLabel">
+               Check Out 
+           </h5>
+           <hr>
+           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+             <span aria-hidden="true">&times;</span>
+           </button>
+         </div>
+         <div class="modal-body">
+           <div class="m-2 p-3">
+             <form action="/checkout" method="POST">
+                 {% csrf_token %}
+                 <div class="form-group">
+                   <label for="">Address</label>
+                   <input type="text" name="address" id="" class="form-control" placeholder="" aria-describedby="helpId">
+                   
+                 </div>
+                 <div class="form-group">
+                     <label for="">Phone</label>
+                     <input type="text" name="phone" id="" class="form-control" placeholder="" aria-describedby="helpId">
+                   </div>
+ 
+                   <input type="submit" class="btn float-right btn-outline-info col-lg-6" value="Check out">
+             </form>
+           </div>
+         </div>
+         
+       </div>
+     </div>
+   </div>
+</body>
+</html>

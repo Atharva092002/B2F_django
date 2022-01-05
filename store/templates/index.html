@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Your Cart</title>
+	  <meta charset="utf-8">
+	  <meta name="viewport" content="width=device-width, initial-scale=1">
+	  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+	  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+	  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	  <link href="https://fonts.googleapis.com/css?family=Abril+Fatface|Dancing+Script" rel="stylesheet">
+      
+	<style>
+  .hero-text h1
+  {
+    position: absolute;
+    top: 200px;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    font-family: 'Times New Roman', Times, serif;
+    color:white;
+    font-size: 30px;
+  }
+
+.card-body-img-fluid
+{
+	object-fit: cover;
+}
+
+.picbig{
+	position: absolute;
+	width:0px;
+	-webkit-transition:width 0.3s linear 0s;
+	transition:width 0.3s linear 0s;
+	z-index:10;
+}
+.img-fluid:hover + .picbig{
+	width:450px;
+}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="/" style="font-family:'Times New Roman';color:white;">Store</a>
+      </li>
+	</ul>
+	<ul class="nav navbar-nav navbar-right">
+      <li class="dropdown" style="font-family:'Times New Roman';color:white;"><a class="btn dropdown-toggle" data-toggle="dropdown">Profile<span class="caret"></span></a>
+      <ul class="dropdown-menu">
+        <li style="font-family:'Times New Roman';color:white;"><a href="#">Action1</a></li>
+        <li style="font-family:'Times New Roman';color:white;"><a href="#">Action2</a></li>
+        <li><a href="#"></a></li>
+      </ul>
+      {% if request.session.customer_id != None%}
+      <li class="nav-item">
+        
+        <a class="nav-link" href="/cart" style="font-family:'Times New Roman';color:white;">Cart  <span class="badge badge-info">{{request.session.cart.keys|length}}</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/orders" style="font-family:'Times New Roman';color:white;">Orders</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/logout" style="font-family:'Times New Roman';color:white;">Logout</a>
+      </li>
+      {% else %}
+      <li class="nav-item">
+        <a class="nav-link" href="/cart" style="font-family:'Times New Roman';color:white;">Cart</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/signup" style="font-family:'Times New Roman';color:white;">Sign up</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/login" style="font-family:'Times New Roman';color:white;">Login</a>
+    </li>
+    {% endif %}
+  </div>
+</nav>
+<br>
+<br>
+{% load cart %}
+<div class="container">
+    <div class="row">
+          <div class="col-md-4">
+            <button type="button" class="btn btn-primary px-4" style="font-family:Times New Roman"><a href="/" style="font-family:'Times New Roman';color:white;text-decoration:none">All Products</a></button>
+            {%for category in categories %}
+            <button type="button" class="btn btn-primary px-4" style="font-family:Times New Roman"><a href="/?category={{category.id}}" style="font-family:'Times New Roman';color:white;text-decoration:none">{{category.name}}</a></button>
+            {% endfor %}  
+        </div>
+      </div>
+<br>
+<br>
+<div class="row">
+{%for product in products %}
+			<div class="col-lg-3 col-md-3 col-sm-12">
+					<div class="card mx-auto">
+						<h6 class="card-title bg-warning text-white" style="font-family:Times New Roman"><center>{{product.name}}</center></h6>
+						<div class="card-body">
+							<img src="{{product.image.url}}" class="img-fluid mb-2" width="800px" height="572px">
+              <img class="picbig" src="{{product.image.url}}">
+							<center><h6 class="card-text">₹{{product.price}}/kg</h6></center>
+              <div class="card-footer row no-gutters">
+                <form action="/" method="POST">
+                {% csrf_token %}
+                <input type="submit" value="-" class="col-2 btn btn-block btn-secondary">
+                <input type="hidden" name='product' value="{{product.id}}">
+                <input type="hidden" name='remove' value="True">
+                </form>
+                  <div class="text-center col">
+                    {{product|cart_count:request.session.cart}}
+                  </div>
+                <form action="/" method="POST">
+                {% csrf_token %}
+                  <input type="hidden" name='product' value="{{product.id}}">
+                <input type="submit" value="+" class="col-2 btn btn-block btn-secondary">
+                </form>
+              </div>
+						</div>
+              <form action="/" method="POST">
+                {% csrf_token %}
+              <input type="hidden" name='product' value="{{product.id}}">
+              <button class="btn btn-info text-white" type="submit" name="Add to cart" style="width:100%;font-family:'Times New Roman'">Add to cart</button>
+            </form>
+					</div>
+					<br>
+					<br>
+			</div>
+            {% endfor %}  
+        </div>
+</body>
+</html>
